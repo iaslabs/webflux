@@ -1,9 +1,9 @@
 package com.co.ias.webflux.infraestructure.driven_adapters.postgresR2DBC;
 
-import com.co.ias.webflux.domain.model.User;
+import com.co.ias.webflux.infraestructure.driven_adapters.postgresR2DBC.entity.UserDBO;
 import org.springframework.data.repository.reactive.ReactiveCrudRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface UserRepository extends ReactiveCrudRepository<User,Integer> {
+public interface IUserDBORepository extends ReactiveCrudRepository<UserDBO,Integer> {
 }

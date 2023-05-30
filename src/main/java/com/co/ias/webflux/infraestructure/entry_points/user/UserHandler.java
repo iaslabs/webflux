@@ -1,7 +1,7 @@
 package com.co.ias.webflux.infraestructure.entry_points.user;
 
-import com.co.ias.webflux.domain.model.User;
-import com.co.ias.webflux.infraestructure.driven_adapters.postgresR2DBC.UserRepository;
+import com.co.ias.webflux.domain.model.user.User;
+import com.co.ias.webflux.infraestructure.driven_adapters.postgresR2DBC.IUserDBORepository;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
@@ -13,12 +13,12 @@ import reactor.core.publisher.Mono;
 @AllArgsConstructor
 public class UserHandler {
 
-    private final UserRepository userRepository;
+    private final IUserDBORepository IUserDBORepository;
 
     public Mono<ServerResponse> createUser(ServerRequest serverRequest) {
         return serverRequest
                 .bodyToMono(User.class)
-                .flatMap(userRepository::save)
+                .flatMap(IUserDBORepository::save)
                 .flatMap(savedUser -> ServerResponse
                         .status(HttpStatus.CREATED)
                         .bodyValue(savedUser))
@@ -29,7 +29,7 @@ public class UserHandler {
     }
 
     public Mono<ServerResponse> queryUsers(ServerRequest serverRequest) {
-        return userRepository
+        return IUserDBORepository
                 .findAll()
                 .collectList()
                 .flatMap(users -> {
@@ -49,7 +49,7 @@ public class UserHandler {
     }
 
     public Mono<ServerResponse> queryUserById(ServerRequest serverRequest) {
-        return userRepository
+        return IUserDBORepository
                 .findById(Integer.valueOf(serverRequest.pathVariable("id")))
                 .flatMap(user -> ServerResponse
                         .ok()
@@ -60,7 +60,7 @@ public class UserHandler {
     }
 
     public Mono<ServerResponse> updateUser(ServerRequest serverRequest) {
-        return userRepository
+        return IUserDBORepository
                 .findById(Integer.valueOf(serverRequest.pathVariable("id")))
                 .flatMap(userInDatabase -> serverRequest
                         .bodyToMono(User.class)
@@ -73,7 +73,7 @@ public class UserHandler {
                                     .build();
                             return ServerResponse
                                     .ok()
-                                    .body(userRepository.save(updatedUser), User.class);
+                                    .body(IUserDBORepository.save(updatedUser), User.class);
                         }))
                 .switchIfEmpty(ServerResponse
                                        .status(HttpStatus.NOT_FOUND)

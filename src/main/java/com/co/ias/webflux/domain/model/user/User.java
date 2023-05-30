@@ -1,4 +1,4 @@
-package com.co.ias.webflux.domain.model;
+package com.co.ias.webflux.domain.model.user;
 
 import lombok.Builder;
 import lombok.Data;
@@ -10,8 +10,8 @@ import org.springframework.data.relational.core.mapping.Table;
 @Table("users")
 public class User {
 
-    private String name;
+    private Name name;
     @Id
-    private Integer id;
-    private String email;
+    private Identification id;
+    private Email email;
 }

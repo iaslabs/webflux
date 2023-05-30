@@ -1,7 +1,7 @@
 package com.co.ias.webflux.infraestructure.entry_points.user;
 
-import com.co.ias.webflux.domain.model.User;
-import com.co.ias.webflux.infraestructure.driven_adapters.postgresR2DBC.UserRepository;
+import com.co.ias.webflux.domain.model.user.User;
+import com.co.ias.webflux.infraestructure.driven_adapters.postgresR2DBC.IUserDBORepository;
 import com.co.ias.webflux.infraestructure.entry_points.ApiRoutes;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -22,7 +22,7 @@ import static org.mockito.Mockito.when;
 class UserHandlerTest {
 
     @MockBean
-    private UserRepository userRepository;
+    private IUserDBORepository IUserDBORepository;
 
     @Autowired
     private WebTestClient webTestClient;
@@ -37,7 +37,7 @@ class UserHandlerTest {
                 .name("Prueba")
                 .email("correo")
                 .build();
-        given(userRepository.save(user)).willReturn(Mono.just(user));
+        given(IUserDBORepository.save(user)).willReturn(Mono.just(user));
 
         //Act & Assert
         webTestClient
@@ -56,6 +56,22 @@ class UserHandlerTest {
     @DisplayName("Create user invalido")
     void createInvalidUser() {
 
+        User user = User
+                .builder()
+                .build();
+        given(IUserDBORepository.save(user)).willThrow(new RuntimeException());
+
+        webTestClient
+                .post()
+                .uri("/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(user)
+                .exchange()
+                .expectStatus()
+                .is4xxClientError()
+                .expectBody(String.class)
+                .isEqualTo("Error al crear usuario.");
+
     }
 
     @Test
@@ -72,9 +88,9 @@ class UserHandlerTest {
                 .name("User")
                 .email("uncorreo@correo")
                 .build();
-        when(userRepository
+        when(IUserDBORepository
                      .findById(1))
-                     .thenReturn(Mono.just(user));
+                .thenReturn(Mono.just(user));
 
         //Act & Assert
         webTestClient
