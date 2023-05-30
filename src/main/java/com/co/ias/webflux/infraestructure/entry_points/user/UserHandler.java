@@ -1,5 +1,6 @@
 package com.co.ias.webflux.infraestructure.entry_points.user;
 
+import com.co.ias.webflux.domain.model.gateways.IUserRepository;
 import com.co.ias.webflux.domain.model.user.User;
 import com.co.ias.webflux.infraestructure.driven_adapters.postgresR2DBC.IUserDBORepository;
 import lombok.AllArgsConstructor;
@@ -13,12 +14,12 @@ import reactor.core.publisher.Mono;
 @AllArgsConstructor
 public class UserHandler {
 
-    private final IUserDBORepository IUserDBORepository;
+    private final IUserRepository iUserRepository;
 
     public Mono<ServerResponse> createUser(ServerRequest serverRequest) {
         return serverRequest
                 .bodyToMono(User.class)
-                .flatMap(IUserDBORepository::save)
+                .flatMap(iUserRepository::save)
                 .flatMap(savedUser -> ServerResponse
                         .status(HttpStatus.CREATED)
                         .bodyValue(savedUser))
@@ -29,7 +30,7 @@ public class UserHandler {
     }
 
     public Mono<ServerResponse> queryUsers(ServerRequest serverRequest) {
-        return IUserDBORepository
+        return iUserRepository
                 .findAll()
                 .collectList()
                 .flatMap(users -> {
@@ -49,7 +50,7 @@ public class UserHandler {
     }
 
     public Mono<ServerResponse> queryUserById(ServerRequest serverRequest) {
-        return IUserDBORepository
+        return iUserRepository
                 .findById(Integer.valueOf(serverRequest.pathVariable("id")))
                 .flatMap(user -> ServerResponse
                         .ok()
@@ -60,7 +61,7 @@ public class UserHandler {
     }
 
     public Mono<ServerResponse> updateUser(ServerRequest serverRequest) {
-        return IUserDBORepository
+        return iUserRepository
                 .findById(Integer.valueOf(serverRequest.pathVariable("id")))
                 .flatMap(userInDatabase -> serverRequest
                         .bodyToMono(User.class)
@@ -73,7 +74,7 @@ public class UserHandler {
                                     .build();
                             return ServerResponse
                                     .ok()
-                                    .body(IUserDBORepository.save(updatedUser), User.class);
+                                    .body(iUserRepository.save(updatedUser), User.class);
                         }))
                 .switchIfEmpty(ServerResponse
                                        .status(HttpStatus.NOT_FOUND)
