@@ -18,10 +18,10 @@ public class DbConfig extends AbstractR2dbcConfiguration {
         return new PostgresqlConnectionFactory(
                 PostgresqlConnectionConfiguration
                         .builder()
-                        .host("localhost")
+                        .host("webfluxpostgres2")
                         .port(5432)
                         .username("postgres")
-                        .password("admin")
+                        .password("123456")
                         .database("reactive")
                         .build());
     }
